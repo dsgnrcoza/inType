@@ -19,14 +19,6 @@ function todayISO(){ return new Date().toISOString().slice(0,10); }
 function addDays(iso,d){ const dt=new Date(iso); dt.setDate(dt.getDate()+d); return dt.toISOString().slice(0,10); }
 function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return d.toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}); }
 
-/* ================= THEME ================= */
-function isDark(){ return localStorage.getItem('inType_theme')==='dark'; }
-function setDarkMode(on){
-  document.body.classList.toggle('dark', on);
-  localStorage.setItem('inType_theme', on?'dark':'light');
-}
-setDarkMode(isDark());
-
 /* ================= LEGAL TEXT (default drafts) ================= */
 const TERMS_TEXT = `By using inType you agree to use this app only to create and send invoices for your own legitimate business purposes. Invoice content, client details and totals are your responsibility to verify before sending. inType is provided "as is" without warranties of any kind, and we are not liable for losses arising from its use. We may update these terms from time to time; continued use of the app means you accept the current version.`;
 const PRIVACY_TEXT = `inType stores your business profile and invoices locally on your device. In this prototype, no data is transmitted to or stored on any external server — everything lives in your browser's local storage. Your company logo, contact details and client information never leave your device. If a future version adds cloud sync or backups, this policy will be updated to explain what is collected and why.`;
@@ -69,7 +61,7 @@ function openSheetWith(html){
 
 /* ================= ROUTER ================= */
 function boot(){
-  render(`<div class="screen splash active"><div class="logo">inType</div></div>`);
+  render(`<div class="screen splash active"><img class="splash-mark" src="Logo.png" alt="inType" /></div>`);
   setTimeout(()=>{
     const splash = document.querySelector('.splash');
     splash.classList.add('fading');
@@ -426,10 +418,6 @@ function openProfileSheet(){
     <div id="pVatNumWrap" style="${p.vat==='yes'?'':'display:none;'} margin-top:8px;">
       <input id="p_vatNumber" placeholder="VAT number" value="${p.vatNumber||''}" />
     </div>
-    <div class="theme-row">
-      <span class="sheet-inline-label">Dark mode</span>
-      <label class="switch"><input type="checkbox" id="darkToggle" ${isDark()?'checked':''}/><span class="slider"></span></label>
-    </div>
     <div class="legal-note" style="margin-top:14px;">
       <a href="#" id="linkTerms2">Terms of Use</a> · <a href="#" id="linkPrivacy2">Privacy Policy</a>
     </div>
@@ -445,7 +433,6 @@ function openProfileSheet(){
       document.getElementById('pVatNumWrap').style.display = pVat==='yes' ? 'block' : 'none';
     });
   });
-  document.getElementById('darkToggle').addEventListener('change', e=> setDarkMode(e.target.checked));
   document.getElementById('linkTerms2').addEventListener('click', e=>{ e.preventDefault(); showLegal('terms'); });
   document.getElementById('linkPrivacy2').addEventListener('click', e=>{ e.preventDefault(); showLegal('privacy'); });
 
@@ -727,13 +714,34 @@ function pulseSentAnimation(){
 function openExportSheet(){
   openSheetWith(`
     <h4>Export invoice</h4>
-    <div class="opt" id="expPdf"><span class="ic">📄</span> Export as PDF <span class="mock-badge">MOCKED</span></div>
-    <div class="opt" id="expDocx"><span class="ic">📝</span> Export as Word (.doc) <span class="mock-badge">SIMPLIFIED</span></div>
+    <button type="button" class="opt" id="expPdf"><span class="ic">📄</span> Export as PDF <span class="mock-badge">MOCKED</span></button>
+    <button type="button" class="opt" id="expDocx"><span class="ic">📝</span> Export as Word (.doc) <span class="mock-badge">SIMPLIFIED</span></button>
     <div class="sheet-actions"><button class="sheet-cancel" id="cancelSheet2" style="width:100%">Close</button></div>
   `);
   document.getElementById('cancelSheet2').addEventListener('click', closeEditSheet);
-  document.getElementById('expPdf').addEventListener('click', ()=>{ mockExport('pdf'); });
-  document.getElementById('expDocx').addEventListener('click', ()=>{ mockExport('docx'); });
+  document.getElementById('expPdf').addEventListener('click', ()=>{ promptFileName('pdf'); });
+  document.getElementById('expDocx').addEventListener('click', ()=>{ promptFileName('docx'); });
+}
+
+function promptFileName(type){
+  const inv = getInvoice();
+  const defaultName = inv.number + (inv.client.name ? '-' + inv.client.name.trim().replace(/\s+/g,'_') : '');
+  openSheetWith(`
+    <h4>Name your file</h4>
+    <label>File name</label>
+    <input id="fileNameInput" value="${defaultName}" />
+    <div class="sheet-actions">
+      <button class="sheet-cancel" id="cancelSheet">Cancel</button>
+      <button class="sheet-done" id="downloadBtn">Download</button>
+    </div>
+  `);
+  const input = document.getElementById('fileNameInput');
+  input.focus(); input.select();
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('downloadBtn').click(); });
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const name = (input.value.trim() || defaultName).replace(/[\\/:*?"<>|]/g,'-');
+    mockExport(type, name);
+  });
 }
 
 function buildInvoiceDoc(inv, profile){
@@ -758,20 +766,21 @@ function buildInvoiceDoc(inv, profile){
   </body></html>`;
 }
 
-function mockExport(type){
+function mockExport(type, filename){
   const inv = getInvoice();
   const profile = store.profile;
   closeEditSheet();
   if(type==='pdf'){
     toast('Opening print dialog (prototype PDF export)…');
+    document.title = filename;
     setTimeout(()=>window.print(), 400);
   } else {
-    toast('Generating Word document…');
+    toast('Downloading Word document…');
     const html = buildInvoiceDoc(inv, profile);
     const blob = new Blob(['﻿', html], {type:'application/msword'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `${inv.number}.doc`; a.click();
+    a.href = url; a.download = `${filename}.doc`; a.click();
   }
 }
 

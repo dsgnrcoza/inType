@@ -60,25 +60,15 @@ body{
   transition:opacity .5s var(--ease);
 }
 .splash.fading{opacity:0;}
-.splash .logo{
-  color:var(--white);
-  font-size:38px; font-weight:700; letter-spacing:2px;
+.splash .splash-mark{
+  width:96px; height:96px; border-radius:22px;
   opacity:0; transform:scale(.85);
   animation:splashIn .6s var(--ease) forwards;
-  display:flex; align-items:center;
 }
 @keyframes splashIn{
   0%{opacity:0; transform:scale(.85);}
   100%{opacity:1; transform:scale(1);}
 }
-.splash .logo::after{
-  content:'';
-  display:inline-block;
-  width:3px; height:1em; margin-left:5px;
-  background:var(--white);
-  animation: blinkCaret 1s step-end infinite;
-}
-@keyframes blinkCaret{ 0%,100%{opacity:1;} 50%{opacity:0;} }
 
 /* ---------- Onboarding ---------- */
 .onb{ padding:0; justify-content:space-between; }
@@ -261,12 +251,12 @@ body{
 
 /* inline edit modal (lightweight sheet) */
 .edit-sheet-backdrop{
-  position:absolute; inset:0; background:rgba(0,0,0,.4); z-index:40; opacity:0; pointer-events:none; transition:opacity .2s;
+  position:absolute; inset:0; background:rgba(0,0,0,.4); z-index:80; opacity:0; pointer-events:none; transition:opacity .2s;
 }
 .edit-sheet-backdrop.show{ opacity:1; pointer-events:auto; }
 .edit-sheet{
   position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:20px 20px 0 0; padding:20px;
-  transform:translateY(100%); transition:transform .25s var(--ease); z-index:41; max-height:70%; overflow-y:auto;
+  transform:translateY(100%); transition:transform .25s var(--ease); z-index:81; max-height:70%; overflow-y:auto;
 }
 .edit-sheet.show{ transform:translateY(0); }
 .edit-sheet h4{ margin:0 0 14px; font-size:15px; }
@@ -282,11 +272,14 @@ body{
 .edit-sheet .sheet-cancel{ background:var(--gray-100); color:var(--black); }
 
 /* export sheet */
-.export-sheet .opt{
-  display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; background:var(--gray-50); margin-bottom:10px; cursor:pointer;
+.edit-sheet .opt{
+  display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; background:var(--gray-50); margin-bottom:10px;
+  cursor:pointer; width:100%; border:none; font:inherit; color:inherit; text-align:left;
+  transition:transform .15s var(--ease), background .15s;
 }
-.export-sheet .opt:hover{ background:var(--gray-100); }
-.export-sheet .opt .ic{ font-size:20px; }
+.edit-sheet .opt:hover{ background:var(--gray-100); }
+.edit-sheet .opt:active{ transform:scale(.98); }
+.edit-sheet .opt .ic{ font-size:20px; }
 .mock-badge{ font-size:9px; background:var(--gold); color:#000; padding:2px 6px; border-radius:100px; margin-left:auto; font-weight:700;}
 
 /* toast */
@@ -313,63 +306,8 @@ body{
 
 ::-webkit-scrollbar{ display:none; }
 
-/* ---------- sheet extras: vat row, theme switch ---------- */
-.vat-edit-row, .theme-row{ display:flex; align-items:center; justify-content:space-between; margin-top:16px; }
+/* ---------- sheet extras: vat row ---------- */
+.vat-edit-row{ display:flex; align-items:center; justify-content:space-between; margin-top:16px; }
 .sheet-inline-label{ font-size:13px; font-weight:600; }
 .vat-edit-row .onb-toggle{ width:140px; }
 .vat-edit-row .toggle-btn{ padding:8px; font-size:13px; }
-.switch{ position:relative; display:inline-block; width:44px; height:26px; flex-shrink:0; }
-.switch input{ opacity:0; width:0; height:0; }
-.switch .slider{
-  position:absolute; cursor:pointer; inset:0; background:var(--gray-200); border-radius:100px; transition:background .2s;
-}
-.switch .slider::before{
-  content:''; position:absolute; height:20px; width:20px; left:3px; top:3px; background:#fff; border-radius:50%;
-  transition:transform .2s var(--ease); box-shadow:0 1px 3px rgba(0,0,0,.2);
-}
-.switch input:checked + .slider{ background:var(--black); }
-.switch input:checked + .slider::before{ transform:translateX(18px); }
-
-/* ================= DARK MODE ================= */
-body.dark{ background:#000; }
-body.dark #app{ background:#0a0a0a; }
-body.dark .screen{ background:#0a0a0a; color:#f2f2f2; }
-body.dark .onb-question{ color:#f2f2f2; }
-body.dark .onb-label{ color:#999; }
-body.dark .onb-optional{ color:#666; }
-body.dark .onb-input{ color:#f2f2f2; border-bottom-color:#2a2a2a; }
-body.dark .onb-input.valid{ border-color:var(--gold); }
-body.dark .toggle-btn{ background:#141414; border-color:#2a2a2a; color:#f2f2f2; }
-body.dark .toggle-btn.selected{ background:#f2f2f2; color:#0a0a0a; border-color:#f2f2f2; }
-body.dark .onb-upload{ border-color:#2a2a2a; }
-body.dark .onb-upload .hint{ color:#999; }
-body.dark .onb-continue{ background:#f2f2f2; color:#0a0a0a; }
-body.dark .onb-skip{ color:#999; }
-body.dark .summary-card{ background:#141414; }
-body.dark .summary-row{ border-bottom-color:#242424; }
-body.dark .summary-row b{ color:#999; }
-body.dark .legal-note{ color:#666; }
-body.dark .legal-note a{ color:#999; }
-body.dark .dash{ background:#0a0a0a; }
-body.dark .dash-title{ color:#f2f2f2; }
-body.dark .dash-logo-badge{ background:#f2f2f2; color:#0a0a0a; }
-body.dark .dash-search input{ background:#141414; color:#f2f2f2; }
-body.dark .inv-row{ background:#141414; }
-body.dark .inv-left b{ color:#f2f2f2; }
-body.dark .inv-left span{ color:#999; }
-body.dark .inv-status.Draft{ background:#262626; color:#aaa; }
-body.dark .icon-btn{ background:#262626; color:#f2f2f2; }
-body.dark .empty-state{ color:#999; }
-body.dark .fab{ background:#f2f2f2; color:#0a0a0a; }
-body.dark .edit-sheet{ background:#141414; color:#f2f2f2; }
-body.dark .edit-sheet label{ color:#999; }
-body.dark .edit-sheet input, body.dark .edit-sheet textarea{ background:#0a0a0a; border-color:#2a2a2a; color:#f2f2f2; }
-body.dark .edit-sheet input:focus, body.dark .edit-sheet textarea:focus{ border-color:#f2f2f2; }
-body.dark .edit-sheet .sheet-cancel{ background:#262626; color:#f2f2f2; }
-body.dark .edit-sheet .sheet-done{ background:#f2f2f2; color:#0a0a0a; }
-body.dark .export-sheet .opt{ background:#0a0a0a; color:#f2f2f2; }
-body.dark .export-sheet .opt:hover{ background:#1c1c1c; }
-body.dark .legal-body{ color:#ccc; }
-body.dark .switch .slider{ background:#2a2a2a; }
-body.dark .switch input:checked + .slider{ background:#f2f2f2; }
-body.dark .switch input:checked + .slider::before{ background:#0a0a0a; }

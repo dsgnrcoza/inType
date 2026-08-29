@@ -1,0 +1,14 @@
+{
+  "name": "inType",
+  "short_name": "inType",
+  "description": "Fast, professional invoices for small business owners.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "Logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "Logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
