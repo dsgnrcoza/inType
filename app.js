@@ -72,14 +72,24 @@ function boot(){
 }
 
 /* ================= ONBOARDING ================= */
+function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+const BIZ_NAMES = ['Cupcake Corner','Lemonade & Co','Bloom Florists','Thabo\'s Landscaping','The Braai Bros','Naledi Nails','Coastal Coffee Co.','Zuri Studio','Kasi Kicks','Sunrise Cleaning'];
+const OWNER_NAMES = ['Naledi Khumalo','Sam Patel','Zuri Nkosi','Ben Adams','Lindiwe Dube','Marco Silva','Priya Naidoo','Tumi Mokoena'];
+const EMAIL_SAMPLES = ['hello@cupcakecorner.com','hi@lemonadeco.com','info@bloomflorists.com','contact@thebraaibros.com'];
+const SOCIAL_SAMPLES = ['@cupcakecorner','@lemonadeco','www.bloomflorists.com','@thebraaibros'];
+const STREET_SAMPLES = ['12 Vine Street','88 Market Ave','5 Baobab Road','21 Kloof Street'];
+const CITY_SAMPLES = ['Cape Town','Johannesburg','Durban','Pretoria'];
+const POSTAL_SAMPLES = ['8001','2196','4001','0181'];
+
 const ONB_STEPS = [
-  {key:'businessName', label:'Business', q:'What\'s your business called?', type:'text', ph:'e.g. House of Zuri'},
-  {key:'ownerName', label:'Owner', q:'What\'s your full name?', type:'text', ph:'e.g. Zuri Nkosi'},
+  {key:'businessName', label:'Business', q:'What\'s your business called?', type:'text', phFn:()=>`e.g. ${randomOf(BIZ_NAMES)}`},
+  {key:'ownerName', label:'Owner', q:'What\'s your full name?', type:'text', phFn:()=>`e.g. ${randomOf(OWNER_NAMES)}`},
   {key:'logo', label:'Branding', q:'Add your company logo', type:'image'},
   {key:'phone', label:'Contact', q:'What\'s your contact number?', type:'tel', ph:'e.g. 082 123 4567'},
-  {key:'email', label:'Contact', q:'What\'s your email address?', type:'email', ph:'e.g. hello@business.com'},
+  {key:'email', label:'Contact', q:'What\'s your email address?', type:'email', phFn:()=>`e.g. ${randomOf(EMAIL_SAMPLES)}`},
   {key:'address', label:'Location', q:'What\'s your physical address?', type:'address'},
-  {key:'social', label:'Online', q:'Website or Instagram handle?', type:'text', ph:'e.g. @houseofzuri', optional:true},
+  {key:'social', label:'Online', q:'Website or Instagram handle?', type:'text', phFn:()=>`e.g. ${randomOf(SOCIAL_SAMPLES)}`, optional:true},
   {key:'vat', label:'Tax', q:'Are you VAT registered?', type:'vat'},
   {key:'confirm', label:'Almost done', q:'Here\'s your profile', type:'confirm'}
 ];
@@ -133,14 +143,15 @@ function renderOnbInput(step){
   const val = onbState[step.key];
   switch(step.type){
     case 'text': case 'tel': case 'email':
-      return `<input class="onb-input" id="mainInput" type="${step.type==='text'?'text':step.type}" placeholder="${step.ph}" value="${val||''}" autofocus />`;
+      const ph = step.phFn ? step.phFn() : step.ph;
+      return `<input class="onb-input" id="mainInput" type="${step.type==='text'?'text':step.type}" placeholder="${ph}" value="${val||''}" autofocus />`;
     case 'address':
       const a = onbState.address||{street:'',city:'',postal:''};
       return `
-        <input class="onb-input" id="addrStreet" type="text" placeholder="Street address" value="${a.street}" autofocus />
+        <input class="onb-input" id="addrStreet" type="text" placeholder="e.g. ${randomOf(STREET_SAMPLES)}" value="${a.street}" autofocus />
         <div class="onb-row">
-          <input class="onb-input" id="addrCity" type="text" placeholder="Suburb / City" value="${a.city}" />
-          <input class="onb-input" id="addrPostal" type="text" placeholder="Postal code" value="${a.postal}" />
+          <input class="onb-input" id="addrCity" type="text" placeholder="e.g. ${randomOf(CITY_SAMPLES)}" value="${a.city}" />
+          <input class="onb-input" id="addrPostal" type="text" placeholder="e.g. ${randomOf(POSTAL_SAMPLES)}" value="${a.postal}" />
         </div>`;
     case 'image':
       return `
