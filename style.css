@@ -215,9 +215,9 @@ body{
 .a4-vat-note{ font-size:9px; color:var(--gray-600); margin-top:6px; font-style:italic; }
 .a4-terms{ margin-top:14px; font-size:9px; color:#333; line-height:1.5; }
 .a4-terms-label{ font-weight:700; text-transform:uppercase; letter-spacing:.5px; font-size:9px; margin-bottom:4px; }
-.a4-sign{ display:flex; gap:40px; margin-top:52px; }
+.a4-sign{ display:flex; gap:40px; margin-top:40px; }
 .a4-sign-line{ flex:1; border-top:1px solid #222; padding-top:4px; font-size:9px; color:var(--gray-600); }
-.a4-footer{ position:absolute; bottom:28px; left:40px; right:40px; text-align:center; font-size:8.5px; color:var(--gray-600); border-top:1px solid var(--gray-200); padding-top:10px; }
+.a4-footer{ margin-top:36px; text-align:center; font-size:8.5px; color:var(--gray-600); border-top:1px solid var(--gray-200); padding-top:10px; }
 
 /* editable blocks */
 .editable{
