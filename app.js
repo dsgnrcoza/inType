@@ -77,7 +77,6 @@ function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 const BIZ_NAMES = ['Cupcake Corner','Lemonade & Co','Bloom Florists','Thabo\'s Landscaping','The Braai Bros','Naledi Nails','Coastal Coffee Co.','Zuri Studio','Kasi Kicks','Sunrise Cleaning'];
 const OWNER_NAMES = ['Naledi Khumalo','Sam Patel','Zuri Nkosi','Ben Adams','Lindiwe Dube','Marco Silva','Priya Naidoo','Tumi Mokoena'];
 const EMAIL_SAMPLES = ['hello@cupcakecorner.com','hi@lemonadeco.com','info@bloomflorists.com','contact@thebraaibros.com'];
-const SOCIAL_SAMPLES = ['@cupcakecorner','@lemonadeco','www.bloomflorists.com','@thebraaibros'];
 const STREET_SAMPLES = ['12 Vine Street','88 Market Ave','5 Baobab Road','21 Kloof Street'];
 const CITY_SAMPLES = ['Cape Town','Johannesburg','Durban','Pretoria'];
 const POSTAL_SAMPLES = ['8001','2196','4001','0181'];
@@ -89,7 +88,6 @@ const ONB_STEPS = [
   {key:'phone', label:'Contact', q:'What\'s your contact number?', type:'tel', ph:'e.g. 082 123 4567'},
   {key:'email', label:'Contact', q:'What\'s your email address?', type:'email', phFn:()=>`e.g. ${randomOf(EMAIL_SAMPLES)}`},
   {key:'address', label:'Location', q:'What\'s your physical address?', type:'address'},
-  {key:'social', label:'Online', q:'Website or Instagram handle?', type:'text', phFn:()=>`e.g. ${randomOf(SOCIAL_SAMPLES)}`, optional:true},
   {key:'vat', label:'Tax', q:'Are you VAT registered?', type:'vat'},
   {key:'confirm', label:'Almost done', q:'Here\'s your profile', type:'confirm'}
 ];
@@ -147,7 +145,6 @@ function skipToDashboard(){
     phone: onbState.phone || '',
     email: onbState.email || '',
     address: onbState.address || {street:'',city:'',postal:''},
-    social: onbState.social || '',
     vat: onbState.vat || 'no',
     vatNumber: onbState.vatNumber || ''
   };
@@ -200,7 +197,6 @@ function renderConfirm(){
       <div class="summary-row"><b>Phone</b><span>${s.phone}</span></div>
       <div class="summary-row"><b>Email</b><span>${s.email}</span></div>
       <div class="summary-row"><b>Address</b><span>${s.address.street}, ${s.address.city} ${s.address.postal}</span></div>
-      ${s.social?`<div class="summary-row"><b>Online</b><span>${s.social}</span></div>`:''}
       <div class="summary-row"><b>VAT</b><span>${s.vat==='yes'?('Registered · '+(s.vatNumber||'')):'Not registered'}</span></div>
     </div>
     <div class="legal-note">
@@ -297,7 +293,6 @@ function finishOnboarding(){
     phone: onbState.phone,
     email: onbState.email,
     address: onbState.address,
-    social: onbState.social || '',
     vat: onbState.vat,
     vatNumber: onbState.vatNumber || ''
   };
@@ -433,16 +428,23 @@ function openProfileSheet(){
   const p = store.profile;
   openSheetWith(`
     <h4>Business profile</h4>
-    <label>Logo</label>
-    <div class="onb-upload logo-dropzone" id="logoDropzone" style="padding:16px;">
-      ${p.logo ? `<img src="${p.logo}" style="max-width:80px; max-height:80px; border-radius:10px;" />` : `<div style="font-size:24px;">📷</div>`}
+    <div class="onb-upload logo-dropzone compact" id="logoDropzone">
+      ${p.logo ? `<img src="${p.logo}" style="max-width:52px; max-height:52px; border-radius:10px;" />` : `<div style="font-size:20px;">📷</div>`}
       <div class="hint">${p.logo ? 'Tap or drop an image to change' : 'Tap or drop an image to upload'}</div>
     </div>
-    <label>Business name</label><input id="p_biz" value="${p.businessName}" />
-    <label>Owner name</label><input id="p_owner" value="${p.ownerName}" />
-    <label>Phone</label><input id="p_phone" value="${p.phone}" />
-    <label>Email</label><input id="p_email" value="${p.email}" />
-    <label>Website / Instagram</label><input id="p_social" value="${p.social}" />
+    <div class="field-row">
+      <div><label>Business name</label><input id="p_biz" value="${p.businessName}" /></div>
+      <div><label>Owner name</label><input id="p_owner" value="${p.ownerName}" /></div>
+    </div>
+    <div class="field-row">
+      <div><label>Phone</label><input id="p_phone" value="${p.phone}" /></div>
+      <div><label>Email</label><input id="p_email" value="${p.email}" /></div>
+    </div>
+    <label>Street address</label><input id="p_street" value="${p.address.street}" />
+    <div class="field-row">
+      <div><label>Suburb / City</label><input id="p_city" value="${p.address.city}" /></div>
+      <div><label>Postal code</label><input id="p_postal" value="${p.address.postal}" /></div>
+    </div>
     <div class="vat-edit-row">
       <span class="sheet-inline-label">VAT registered</span>
       <div class="onb-toggle" id="pVatToggle">
@@ -453,7 +455,7 @@ function openProfileSheet(){
     <div id="pVatNumWrap" style="${p.vat==='yes'?'':'display:none;'} margin-top:8px;">
       <input id="p_vatNumber" placeholder="VAT number" value="${p.vatNumber||''}" />
     </div>
-    <div class="legal-note" style="margin-top:14px;">
+    <div class="legal-note" style="margin-top:10px;">
       <a href="#" id="linkTerms2">Terms of Use</a> · <a href="#" id="linkPrivacy2">Privacy Policy</a>
     </div>
     ${sheetActions('Save')}
@@ -505,7 +507,11 @@ function openProfileSheet(){
       ownerName: document.getElementById('p_owner').value.trim(),
       phone: document.getElementById('p_phone').value.trim(),
       email: document.getElementById('p_email').value.trim(),
-      social: document.getElementById('p_social').value.trim(),
+      address: {
+        street: document.getElementById('p_street').value.trim(),
+        city: document.getElementById('p_city').value.trim(),
+        postal: document.getElementById('p_postal').value.trim()
+      },
       vat: pVat,
       vatNumber: pVat==='yes' ? document.getElementById('p_vatNumber').value.trim() : ''
     };
@@ -608,7 +614,7 @@ function editorHTML(){
           <div class="a4-sign-line">Date</div>
         </div>
         <div class="a4-footer">
-          ${profile.address.street}, ${profile.address.city}, ${profile.address.postal} · ${profile.phone} · ${profile.email}${profile.social?' · '+profile.social:''} · ${profile.vat==='yes'?('VAT: '+profile.vatNumber):'Not VAT registered'}
+          ${profile.address.street}, ${profile.address.city}, ${profile.address.postal} · ${profile.phone} · ${profile.email} · ${profile.vat==='yes'?('VAT: '+profile.vatNumber):'Not VAT registered'}
         </div>
       </div>
     </div>
@@ -824,7 +830,7 @@ function buildInvoiceDoc(inv, profile){
     <p><b>Terms &amp; Conditions</b><br/>${inv.terms}</p>
     <p>Client Signature: _______________________ &nbsp;&nbsp; Date: _______________</p>
     <hr/>
-    <p style="font-size:11px; color:#666;">${profile.address.street}, ${profile.address.city}, ${profile.address.postal} · ${profile.phone} · ${profile.email}${profile.social?' · '+profile.social:''} · ${vatLine}</p>
+    <p style="font-size:11px; color:#666;">${profile.address.street}, ${profile.address.city}, ${profile.address.postal} · ${profile.phone} · ${profile.email} · ${vatLine}</p>
   </body></html>`;
 }
 
