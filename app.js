@@ -123,7 +123,10 @@ function renderOnboarding(){
 
   render(`
     <div class="screen onb active">
-      <div class="onb-progress">${step.type==='confirm'?'':dots}</div>
+      <div class="onb-topbar">
+        <div class="onb-progress">${step.type==='confirm'?'':dots}</div>
+        ${step.type!=='confirm' ? `<button class="onb-skip-dash" id="skipDashBtn">Skip to dashboard</button>` : ''}
+      </div>
       <div class="onb-body">${bodyHtml}</div>
       <div class="onb-footer">
         ${onbIndex>0 && step.type!=='confirm' ? `<button class="onb-skip" id="backBtn">Back</button>` : `<span></span>`}
@@ -132,7 +135,23 @@ function renderOnboarding(){
       </div>
     </div>
   `);
+  document.getElementById('skipDashBtn')?.addEventListener('click', skipToDashboard);
   wireOnboarding(step);
+}
+
+function skipToDashboard(){
+  store.profile = {
+    businessName: onbState.businessName || 'My Business',
+    ownerName: onbState.ownerName || 'Business Owner',
+    logo: onbState.logo || '',
+    phone: onbState.phone || '',
+    email: onbState.email || '',
+    address: onbState.address || {street:'',city:'',postal:''},
+    social: onbState.social || '',
+    vat: onbState.vat || 'no',
+    vatNumber: onbState.vatNumber || ''
+  };
+  goDashboard();
 }
 
 function needsManualContinue(step){
@@ -414,6 +433,11 @@ function openProfileSheet(){
   const p = store.profile;
   openSheetWith(`
     <h4>Business profile</h4>
+    <label>Logo</label>
+    <div class="onb-upload logo-dropzone" id="logoDropzone" style="padding:16px;">
+      ${p.logo ? `<img src="${p.logo}" style="max-width:80px; max-height:80px; border-radius:10px;" />` : `<div style="font-size:24px;">📷</div>`}
+      <div class="hint">${p.logo ? 'Tap or drop an image to change' : 'Tap or drop an image to upload'}</div>
+    </div>
     <label>Business name</label><input id="p_biz" value="${p.businessName}" />
     <label>Owner name</label><input id="p_owner" value="${p.ownerName}" />
     <label>Phone</label><input id="p_phone" value="${p.phone}" />
@@ -435,6 +459,32 @@ function openProfileSheet(){
     ${sheetActions('Save')}
   `);
 
+  let newLogo = p.logo || '';
+  const dropzone = document.getElementById('logoDropzone');
+  function setLogoPreview(dataUrl){
+    newLogo = dataUrl;
+    dropzone.innerHTML = `<img src="${dataUrl}" style="max-width:80px; max-height:80px; border-radius:10px;" /><div class="hint">Tap or drop an image to change</div>`;
+  }
+  function handleLogoFile(file){
+    if(!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => setLogoPreview(reader.result);
+    reader.readAsDataURL(file);
+  }
+  dropzone.addEventListener('click', ()=>{
+    const input = document.getElementById('hiddenFileInput');
+    input.value = '';
+    input.onchange = () => handleLogoFile(input.files[0]);
+    input.click();
+  });
+  dropzone.addEventListener('dragover', e=>{ e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e=>{
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    handleLogoFile(e.dataTransfer.files[0]);
+  });
+
   let pVat = p.vat;
   document.querySelectorAll('#pVatToggle .toggle-btn').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -450,6 +500,7 @@ function openProfileSheet(){
   document.getElementById('doneSheet').addEventListener('click', ()=>{
     store.profile = {
       ...p,
+      logo: newLogo,
       businessName: document.getElementById('p_biz').value.trim() || p.businessName,
       ownerName: document.getElementById('p_owner').value.trim(),
       phone: document.getElementById('p_phone').value.trim(),

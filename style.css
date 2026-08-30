@@ -72,8 +72,15 @@ body{
 
 /* ---------- Onboarding ---------- */
 .onb{ padding:0; justify-content:space-between; }
+.onb-topbar{
+  display:flex; align-items:center; gap:12px; padding:20px 24px 0;
+}
 .onb-progress{
-  display:flex; gap:6px; padding:20px 24px 0;
+  flex:1; display:flex; gap:6px;
+}
+.onb-skip-dash{
+  flex-shrink:0; background:none; border:none; color:var(--gray-600); font-size:12px;
+  text-decoration:none; cursor:pointer; padding:0; font-family:inherit;
 }
 .onb-dot{ flex:1; height:3px; border-radius:3px; background:var(--gray-200); overflow:hidden;}
 .onb-dot.done{ background:var(--black); }
@@ -105,6 +112,8 @@ body{
   cursor:pointer; transition:all .2s;
 }
 .onb-upload:hover{ border-color:var(--gray-400); }
+.onb-upload.drag-over{ border-color:var(--gold); background:rgba(201,162,75,.06); }
+.logo-dropzone{ cursor:pointer; margin-bottom:4px; }
 .onb-upload img{ max-width:120px; max-height:120px; border-radius:12px; }
 .onb-upload .hint{ color:var(--gray-600); font-size:14px; margin-top:8px;}
 .onb-footer{ padding:16px 28px 28px; display:flex; justify-content:space-between; align-items:center; }
